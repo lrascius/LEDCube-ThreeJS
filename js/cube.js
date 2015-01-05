@@ -31,28 +31,59 @@ function init() {
 	/* Define the geometry of the object as a cube with dimensions of cubeSize */
 	var geometry = new THREE.BoxGeometry( cubeSize, cubeSize, cubeSize );
 	/* Define the material of the object as well as color */
-	var material = new THREE.MeshBasicMaterial( { color: 0x00ff00,
+	var onMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00,
+												  opacity: 1,
+												  transparent: false
+	 } );
+
+	var offMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00,
 												  opacity: 0.1,
 												  transparent: true
 	 } );
+
+	var onCube = new THREE.Mesh(geometry);
+	var offCube = new THREE.Mesh(geometry);
+
+	var onmergedGeometry = new THREE.Geometry();
+	var offmergedGeometry = new THREE.Geometry();
+
 
 	/* Draw the LED's in the x, y, z directions */
 	for (var k = 0; k < cubeDim; k++) {
 		for (var j = 0; j < cubeDim; j++) {
 			for (var i = 0; i < cubeDim; i++) {
-				var cube = new THREE.Mesh(geometry, material);
-				/* Position of the LED in the x direction */
-				cube.position.x = i*(cubeSize+cubeSpace) - shiftCube;
-				/* Position of the LED in the y direction */
-				cube.position.y = j*(cubeSize+cubeSpace) - shiftCube;
-				/* Position of the LED in the z direction */
-				cube.position.z = k*(cubeSize+cubeSpace) - shiftCube;
-				/* Add the LED to the scene */
-				scene.add(cube);
+				if(j == 1)
+				{
+					/* Position of the LED in the x direction */
+					onCube.position.x = i*(cubeSize+cubeSpace) - shiftCube;
+					/* Position of the LED in the y direction */
+					onCube.position.y = j*(cubeSize+cubeSpace) - shiftCube;
+					/* Position of the LED in the z direction */
+					onCube.position.z = k*(cubeSize+cubeSpace) - shiftCube;
+					/* Add the LED to the scene */
+					onCube.updateMatrix();
+					onmergedGeometry.merge(onCube.geometry, onCube.matrix);
+				}
+				else
+				{
+					/* Position of the LED in the x direction */
+					offCube.position.x = i*(cubeSize+cubeSpace) - shiftCube;
+					/* Position of the LED in the y direction */
+					offCube.position.y = j*(cubeSize+cubeSpace) - shiftCube;
+					/* Position of the LED in the z direction */
+					offCube.position.z = k*(cubeSize+cubeSpace) - shiftCube;
+					/* Add the LED to the scene */
+					offCube.updateMatrix();
+					offmergedGeometry.merge(offCube.geometry, offCube.matrix);
+				}
 			}
 		}
 	}
 
+	var onCubes = new THREE.Mesh(onmergedGeometry, onMaterial);
+	scene.add(onCubes);
+	var offCubes = new THREE.Mesh(offmergedGeometry, offMaterial);
+	scene.add(offCubes);
 	/* Position the camera away from the cube by twice the size of the cube */
 	camera.position.z = 2*((cubeDim*(cubeSize+cubeSpace) - cubeSpace) - cubeSize/2);
 }
