@@ -1,6 +1,9 @@
 /* Initialize global variables */
 var camera, controls, scene, renderer;
 
+var timer = 0;
+var onCubes;
+
 init();
 animate();
 
@@ -19,8 +22,14 @@ function init() {
 	controls = new THREE.TrackballControls(camera);
 	/* Add an event listener for when there is a change */
 	controls.addEventListener('change', render);
+	drawCube();
+
+}
+
+function drawCube()
+{
 	/* Cube dimensions */
-	var cubeDim = 10;
+	var cubeDim = 40;
 	/* Size of each individual LED */
 	var cubeSize = 1;
 	/* Space between each LED */
@@ -37,7 +46,7 @@ function init() {
 	 } );
 
 	var offMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00,
-												  opacity: 0.1,
+												  opacity: 0.05,
 												  transparent: true
 	 } );
 
@@ -47,12 +56,11 @@ function init() {
 	var onmergedGeometry = new THREE.Geometry();
 	var offmergedGeometry = new THREE.Geometry();
 
-
 	/* Draw the LED's in the x, y, z directions */
 	for (var k = 0; k < cubeDim; k++) {
 		for (var j = 0; j < cubeDim; j++) {
 			for (var i = 0; i < cubeDim; i++) {
-				if(j == 1)
+				if(sineWave(i,j,k,cubeDim))
 				{
 					/* Position of the LED in the x direction */
 					onCube.position.x = i*(cubeSize+cubeSpace) - shiftCube;
@@ -80,7 +88,7 @@ function init() {
 		}
 	}
 
-	var onCubes = new THREE.Mesh(onmergedGeometry, onMaterial);
+	onCubes = new THREE.Mesh(onmergedGeometry, onMaterial);
 	scene.add(onCubes);
 	var offCubes = new THREE.Mesh(offmergedGeometry, offMaterial);
 	scene.add(offCubes);
@@ -88,19 +96,30 @@ function init() {
 	camera.position.z = 2*((cubeDim*(cubeSize+cubeSpace) - cubeSpace) - cubeSize/2);
 }
 
-function animate() {
+function sineWave(i,j,k,cubeDim)
+{
+	return (j == (Math.floor(2*Math.sin((k/2)) + 2*Math.sin((i/2)) + cubeDim/2)));
+}
+
+function animate()
+{
 	/* Makes sure that that the renderer pauses when user navigates to another tab */
 	requestAnimationFrame(animate);
+	onCubes.rotation.y += 0.01;
 	/* Update the controls before rendering */
 	controls.update();
+	render();
 }
 
 /* Function that creates a loop which makes the renderer draw the scene 60 FPS */
-function render() {
-	/* Render the scene based on the position of the camera*/
+function render()
+{
+	/* Render the scene based on the position of the camera */
+	//timer += Math.PI/4;
 	renderer.render(scene, camera);
 }
 
 render();
+
 
 
